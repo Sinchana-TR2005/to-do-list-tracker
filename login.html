@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taskflow — Sign In</title>
+  <meta name="description" content="Sign in to Taskflow to manage your tasks beautifully." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-deep: #07060b;
+      --bg-surface: #0f0d15;
+      --glass: rgba(255,255,255,0.025);
+      --glass-elevated: rgba(255,255,255,0.045);
+      --glass-border: rgba(255,255,255,0.06);
+      --glass-border-hover: rgba(255,255,255,0.12);
+      --accent: #8b6cef;
+      --accent-soft: #a48bfa;
+      --accent-glow: rgba(139,108,239,0.2);
+      --accent-warm: #c4a0ff;
+      --gold: #d4a853;
+      --gold-glow: rgba(212,168,83,0.15);
+      --danger: #e8526e;
+      --success: #5ddba3;
+      --text: #eeedf2;
+      --text-soft: #a09baf;
+      --text-faint: #5c576a;
+      --radius: 20px;
+      --radius-sm: 14px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Ambient Light ────────────────────────── */
+    .ambient {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(100px);
+      opacity: 0.6;
+    }
+    .ambient-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(139,108,239,0.15), transparent 70%);
+      top: -15%; left: -8%;
+      animation: drift1 24s ease-in-out infinite;
+    }
+    .ambient-2 {
+      width: 450px; height: 450px;
+      background: radial-gradient(circle, rgba(212,168,83,0.08), transparent 70%);
+      bottom: -12%; right: -6%;
+      animation: drift2 28s ease-in-out infinite;
+    }
+    .ambient-3 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(93,219,163,0.06), transparent 70%);
+      top: 40%; left: 55%;
+      animation: drift3 20s ease-in-out infinite;
+    }
+
+    @keyframes drift1 {
+      0%,100% { transform: translate(0,0); }
+      33% { transform: translate(10vw,12vh); }
+      66% { transform: translate(-4vw,6vh); }
+    }
+    @keyframes drift2 {
+      0%,100% { transform: translate(0,0); }
+      50% { transform: translate(-10vw,-12vh); }
+    }
+    @keyframes drift3 {
+      0%,100% { transform: translate(0,0); }
+      50% { transform: translate(-6vw,8vh); }
+    }
+
+    /* Dot grid */
+    .dot-grid {
+      position: fixed; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* ── Layout ───────────────────────────────── */
+    .auth-wrapper {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 460px;
+      padding: 24px;
+      animation: reveal 0.8s var(--ease);
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Branding ─────────────────────────────── */
+    .brand {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent), #6b4fd4);
+      border-radius: 16px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 30px var(--accent-glow);
+      font-size: 1.5rem;
+      color: #fff;
+      position: relative;
+    }
+    .brand-mark::after {
+      content: '';
+      position: absolute; inset: -1px;
+      border-radius: 17px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      z-index: -1;
+    }
+    .brand h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent-soft) 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand p {
+      color: var(--text-faint);
+      font-size: 0.95rem;
+      margin-top: 8px;
+      font-weight: 300;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Card ─────────────────────────────────── */
+    .auth-card {
+      background: linear-gradient(165deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 40px 36px;
+      backdrop-filter: blur(24px) saturate(1.2);
+      box-shadow:
+        0 24px 80px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(139,108,239,0.3), rgba(212,168,83,0.2), transparent);
+    }
+
+    /* ── Tabs ─────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 32px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .tab {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 11px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.35s var(--ease);
+      letter-spacing: 0.3px;
+    }
+    .tab:hover { color: var(--text-soft); }
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), #6b4fd4);
+      color: #fff;
+      box-shadow: 0 4px 18px var(--accent-glow);
+    }
+
+    /* ── Form ─────────────────────────────────── */
+    .form { display: flex; flex-direction: column; gap: 20px; }
+    .form.hidden { display: none; }
+
+    .field label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    .field .wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .field .ic {
+      position: absolute; left: 16px;
+      color: var(--text-faint);
+      font-size: 0.9rem;
+      transition: color 0.3s var(--ease);
+      pointer-events: none;
+    }
+    .field input {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius-sm);
+      padding: 14px 48px 14px 46px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 400;
+      outline: none;
+      transition: all 0.3s var(--ease);
+      letter-spacing: 0.2px;
+    }
+    .field input::placeholder {
+      color: var(--text-faint);
+      font-weight: 300;
+    }
+    .field input:focus {
+      border-color: rgba(139,108,239,0.45);
+      box-shadow: 0 0 0 3px var(--accent-glow), inset 0 1px 2px rgba(0,0,0,0.2);
+      background: rgba(255,255,255,0.04);
+    }
+    .field input:focus ~ .ic { color: var(--accent-soft); }
+
+    .toggle-pw {
+      position: absolute; right: 14px;
+      background: none; border: none;
+      color: var(--text-faint);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: all 0.3s var(--ease);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .toggle-pw:hover { color: var(--text-soft); background: rgba(255,255,255,0.04); }
+
+    /* ── Submit ────────────────────────────────── */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent), #6b4fd4);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.35s var(--ease);
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+    }
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s var(--ease);
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+    .submit-btn:hover::after { left: 100%; }
+    .submit-btn:active { transform: translateY(0) scale(0.98); }
+    .submit-btn:disabled {
+      opacity: 0.5; pointer-events: none;
+    }
+
+    /* ── Divider ───────────────────────────────── */
+    .sep {
+      display: flex; align-items: center;
+      gap: 14px; margin: 24px 0 20px;
+    }
+    .sep::before, .sep::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+    }
+    .sep span {
+      font-size: 0.72rem;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 400;
+    }
+
+    /* ── Social ────────────────────────────────── */
+    .socials { display: flex; gap: 12px; }
+    .social {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 13px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      color: var(--text-soft);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s var(--ease);
+      letter-spacing: 0.2px;
+    }
+    .social:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .social svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── Message ───────────────────────────────── */
+    .msg {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      display: none;
+      animation: reveal 0.3s var(--ease);
+      letter-spacing: 0.2px;
+    }
+    .msg.err {
+      display: block;
+      background: rgba(232,82,110,0.1);
+      border: 1px solid rgba(232,82,110,0.2);
+      color: var(--danger);
+    }
+    .msg.ok {
+      display: block;
+      background: rgba(93,219,163,0.1);
+      border: 1px solid rgba(93,219,163,0.2);
+      color: var(--success);
+    }
+
+    /* ── Footer ────────────────────────────────── */
+    .auth-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      font-weight: 300;
+      letter-spacing: 0.3px;
+    }
+    .auth-footer a {
+      color: var(--accent-soft);
+      text-decoration: none;
+      font-weight: 400;
+      transition: color 0.3s;
+    }
+    .auth-footer a:hover { color: var(--accent-warm); }
+
+    /* ── Spinner ───────────────────────────────── */
+    .spin {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spinning 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spinning { to { transform: rotate(360deg); } }
+
+    /* ── Particles ─────────────────────────────── */
+    .pt {
+      position: fixed;
+      background: rgba(164,139,250,0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: rise linear infinite;
+    }
+    @keyframes rise {
+      0% { opacity: 0; transform: translateY(0) scale(0); }
+      8% { opacity: 1; transform: scale(1); }
+      85% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-100vh) scale(0); }
+    }
+
+    /* ── Responsive ────────────────────────────── */
+    @media (max-width: 480px) {
+      .auth-card { padding: 30px 24px; border-radius: 22px; }
+      .brand h1 { font-size: 1.8rem; }
+      .socials { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+  <div class="ambient ambient-3"></div>
+  <div class="dot-grid"></div>
+
+  <div class="auth-wrapper">
+    <div class="brand">
+      <div class="brand-mark">✦</div>
+      <h1>Taskflow</h1>
+      <p>Elegance meets productivity</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="tabs">
+        <button class="tab active" id="tab-login">Sign In</button>
+        <button class="tab" id="tab-signup">Create Account</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <!-- Login -->
+      <form class="form" id="form-login" autocomplete="off">
+        <div class="field">
+          <label for="login-email">Email Address</label>
+          <div class="wrap">
+            <input type="email" id="login-email" placeholder="you@example.com" required />
+            <span class="ic">✉</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <div class="wrap">
+            <input type="password" id="login-password" placeholder="Enter your password" required minlength="6" />
+            <span class="ic">🔑</span>
+            <button type="button" class="toggle-pw" data-for="login-password">Show</button>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="btn-login">Sign In</button>
+      </form>
+
+      <!-- Signup -->
+      <form class="form hidden" id="form-signup" autocomplete="off">
+        <div class="field">
+          <label for="signup-name">Full Name</label>
+          <div class="wrap">
+            <input type="text" id="signup-name" placeholder="Your name" required />
+            <span class="ic">👤</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="signup-email">Email Address</label>
+          <div class="wrap">
+            <input type="email" id="signup-email" placeholder="you@example.com" required />
+            <span class="ic">✉</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="signup-password">Password</label>
+          <div class="wrap">
+            <input type="password" id="signup-password" placeholder="Min 6 characters" required minlength="6" />
+            <span class="ic">🔑</span>
+            <button type="button" class="toggle-pw" data-for="signup-password">Show</button>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="btn-signup">Create Account</button>
+      </form>
+
+      <div class="sep"><span>or</span></div>
+
+      <div class="socials">
+        <button type="button" class="social" id="g-btn">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button type="button" class="social" id="gh-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-footer">
+      <p>By continuing, you agree to our <a href="#">Terms</a> & <a href="#">Privacy Policy</a></p>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const DB = 'taskflow_users', SK = 'taskflow_session';
+
+      const getUsers = () => JSON.parse(localStorage.getItem(DB) || '[]');
+      const saveUsers = u => localStorage.setItem(DB, JSON.stringify(u));
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+
+      async function hash(pw) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      const API = {
+        async signup(name, email, password) {
+          await wait(900);
+          const users = getUsers();
+          if (users.find(u => u.email === email.toLowerCase()))
+            return { ok: false, error: 'An account with this email already exists.' };
+          const h = await hash(password);
+          const user = { id: uid(), name, email: email.toLowerCase(), password: h, createdAt: Date.now() };
+          users.push(user);
+          saveUsers(users);
+          return { ok: true, user: { id: user.id, name: user.name, email: user.email } };
+        },
+        async login(email, password) {
+          await wait(900);
+          const h = await hash(password);
+          const user = getUsers().find(u => u.email === email.toLowerCase() && u.password === h);
+          if (!user) return { ok: false, error: 'Invalid email or password.' };
+          return { ok: true, user: { id: user.id, name: user.name, email: user.email } };
+        },
+        session(user) {
+          localStorage.setItem(SK, JSON.stringify({ ...user, token: uid(), expiresAt: Date.now() + 86400000 }));
+        },
+        check() {
+          const s = JSON.parse(localStorage.getItem(SK) || 'null');
+          if (s && s.expiresAt > Date.now()) return s;
+          localStorage.removeItem(SK);
+          return null;
+        }
+      };
+
+      if (API.check()) { window.location.href = 'index.html'; return; }
+
+      const $ = id => document.getElementById(id);
+      const msgEl = $('msg');
+
+      // Tabs
+      $('tab-login').onclick = () => swap('login');
+      $('tab-signup').onclick = () => swap('signup');
+
+      function swap(t) {
+        msgEl.className = 'msg';
+        $('tab-login').classList.toggle('active', t === 'login');
+        $('tab-signup').classList.toggle('active', t === 'signup');
+        $('form-login').classList.toggle('hidden', t !== 'login');
+        $('form-signup').classList.toggle('hidden', t !== 'signup');
+      }
+
+      function msg(text, type) { msgEl.textContent = text; msgEl.className = 'msg ' + type; }
+
+      // Toggle password
+      document.querySelectorAll('.toggle-pw').forEach(b => {
+        b.onclick = () => {
+          const inp = $(b.dataset.for);
+          const show = inp.type === 'password';
+          inp.type = show ? 'text' : 'password';
+          b.textContent = show ? 'Hide' : 'Show';
+        };
+      });
+
+      // Login
+      $('form-login').onsubmit = async e => {
+        e.preventDefault();
+        const btn = $('btn-login');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spin"></span>Signing in…';
+        msgEl.className = 'msg';
+        const res = await API.login($('login-email').value, $('login-password').value);
+        if (res.ok) {
+          API.session(res.user);
+          msg('Welcome back, ' + res.user.name + '!', 'ok');
+          await wait(600);
+          window.location.href = 'index.html';
+        } else {
+          msg(res.error, 'err');
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+        }
+      };
+
+      // Signup
+      $('form-signup').onsubmit = async e => {
+        e.preventDefault();
+        const btn = $('btn-signup');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spin"></span>Creating account…';
+        msgEl.className = 'msg';
+        const res = await API.signup($('signup-name').value.trim(), $('signup-email').value, $('signup-password').value);
+        if (res.ok) {
+          API.session(res.user);
+          msg('Account created! Redirecting…', 'ok');
+          await wait(600);
+          window.location.href = 'index.html';
+        } else {
+          msg(res.error, 'err');
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+        }
+      };
+
+      $('g-btn').onclick = () => msg('Google OAuth coming soon!', 'err');
+      $('gh-btn').onclick = () => msg('GitHub OAuth coming soon!', 'err');
+
+      // Particles
+      function particle() {
+        const p = document.createElement('div');
+        p.className = 'pt';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.width = p.style.height = (1 + Math.random() * 2.5) + 'px';
+        p.style.animationDuration = (10 + Math.random() * 14) + 's';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 24000);
+      }
+      setInterval(particle, 1200);
+      for (let i = 0; i < 6; i++) setTimeout(particle, i * 300);
+    })();
+  </script>
+</body>
+</html>
