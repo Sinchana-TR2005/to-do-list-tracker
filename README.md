@@ -80,6 +80,8 @@ Made by Sinchana TR
 
 GitHub: [https://github.com/Sinchana-TR2005](https://github.com/Sinchana-TR2005)
 
+linkdin:(https://www.linkedin.com/in/sinchana-tr-383029297/)
+
 ---
 
 ## License
